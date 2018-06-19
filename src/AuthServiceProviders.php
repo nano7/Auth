@@ -2,6 +2,7 @@
 
 use Nano7\Foundation\Config\Repository;
 use Nano7\Foundation\Support\ServiceProvider;
+use Nano7\Http\Kernel;
 
 class AuthServiceProviders extends ServiceProvider
 {
@@ -13,6 +14,8 @@ class AuthServiceProviders extends ServiceProvider
         $this->registerProvider();
 
         $this->registerManager();
+
+        $this->registerMiddlewares();
     }
 
     /**
@@ -31,6 +34,8 @@ class AuthServiceProviders extends ServiceProvider
 
             return $auth;
         });
+
+        $this->app->alias('auth', 'Nano7\Auth\AuthManager');
     }
 
     /**
@@ -80,6 +85,20 @@ class AuthServiceProviders extends ServiceProvider
                 $app['session'],
                 $config->get('auth.session.name', 'netforce_session')
             );
+        });
+    }
+
+    /**
+     * Register middlewares.
+     *
+     * @return void
+     */
+    protected function registerMiddlewares()
+    {
+        event()->listen('web.middleware.register', function (Kernel $web) {
+
+            $web->middleware('auth',  '\Nano7\Auth\Middlewares\Authenticated');
+            $web->middleware('guest', '\Nano7\Auth\Middlewares\Guest');
         });
     }
 }
