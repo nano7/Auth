@@ -1,6 +1,7 @@
 <?php namespace Nano7\Auth;
 
-use Illuminate\Http\Request;
+use Nano7\Http\Request;
+use Nano7\Http\Session\StoreInterface as Session;
 
 class SessionGuard extends Guard
 {
@@ -12,6 +13,11 @@ class SessionGuard extends Guard
     protected $request;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * @var string
      */
     protected $name = '';
@@ -20,13 +26,15 @@ class SessionGuard extends Guard
      * @param $app
      * @param $provider
      * @param Request $request
+     * @param Session $session
      * @param callable $callback
      */
-    public function __construct($app, $provider, Request $request, $name)
+    public function __construct($app, $provider, Request $request, Session $session, $name)
     {
         parent::__construct($app, $provider);
         
         $this->request = $request;
+        $this->session = $session;
         $this->name = $name;
     }
 
@@ -50,7 +58,7 @@ class SessionGuard extends Guard
      */
     protected function getSessionId()
     {
-        $sessionId = session()->get($this->name);
+        $sessionId = $this->session->get($this->name);
 
         return $sessionId;
     }
@@ -83,7 +91,7 @@ class SessionGuard extends Guard
     public function login(UserInterface $user, $remember = false)
     {
         // Atualizar sessao
-        session()->put($this->name, $user->getAuthId());
+        $this->session->set($this->name, $user->getAuthId());
 
         // Tratar remember
         //...
@@ -105,12 +113,12 @@ class SessionGuard extends Guard
         //$user = $this->user();
 
         // Remover id da sessao
-        session()->remove($this->name);
+        $this->session->forget($this->name);
 
         // Zerar remember
         //..
 
-        // DIsparar evento de logout
+        // Disparar evento de logout
         //..
 
         // Once we have fired the logout event we will clear the users out of memory

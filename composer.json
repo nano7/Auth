@@ -12,7 +12,8 @@
 
     "require": {
         "php"                   : ">=5.5.0",
-        "nano7/foundation"      : "dev-master"
+        "nano7/foundation"      : "dev-master",
+        "nano7/http"            : "dev-master"
     },
 
     "autoload": {

@@ -77,6 +77,7 @@ class AuthServiceProviders extends ServiceProvider
                 $app,
                 $app['auth.provider'],
                 $app['request'],
+                $app['session'],
                 $config->get('auth.session.name', 'netforce_session')
             );
         });
