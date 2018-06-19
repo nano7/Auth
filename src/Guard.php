@@ -72,10 +72,10 @@ abstract class Guard
     /**
      * Set the current user.
      *
-     * @param  UserInterface  $user
+     * @param  UserInterface|null  $user
      * @return $this
      */
-    public function setUser(UserInterface $user)
+    public function setUser($user)
     {
         $this->user = $user;
 
