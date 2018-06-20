@@ -1,8 +1,9 @@
 <?php namespace Nano7\Auth;
 
 use Nano7\Database\Model\Model;
-use Nano7\Foundation\Application;
 use Nano7\Foundation\Support\Arr;
+use Nano7\Foundation\Application;
+use Nano7\Foundation\Encryption\BcryptHasher;
 
 class Provider
 {
@@ -17,13 +18,19 @@ class Provider
     protected $model;
 
     /**
+     * @var BcryptHasher
+     */
+    protected $hasher;
+
+    /**
      * @param $app
      * @param $model
      */
-    public function __construct($app, $model)
+    public function __construct($app, $model, BcryptHasher $hasher)
     {
         $this->app = $app;
         $this->model = $model;
+        $this->hasher = $hasher;
     }
 
     /**
@@ -94,5 +101,19 @@ class Provider
         }
 
         return $query->first();
+    }
+
+    /**
+     * Validate a user against the given credentials.
+     *
+     * @param  UserInterface $user
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function validateCredentials(UserInterface $user, array $credentials)
+    {
+        $plain = $credentials['password'];
+
+        return $this->hasher->check($plain, $user->getAuthPassword());
     }
 }

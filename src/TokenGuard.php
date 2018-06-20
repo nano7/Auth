@@ -24,12 +24,13 @@ class TokenGuard extends Guard
     /**
      * @param $app
      * @param $provider
+     * @param $events
      * @param Request $request
      * @param callable $callback
      */
-    public function __construct($app, $provider, Request $request, $inputKey, $storageKey)
+    public function __construct($app, $provider, $events, Request $request, $inputKey, $storageKey)
     {
-        parent::__construct($app, $provider);
+        parent::__construct($app, $provider, $events);
         
         $this->request = $request;
         $this->inputKey = $inputKey;

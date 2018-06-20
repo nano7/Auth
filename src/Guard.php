@@ -1,6 +1,7 @@
 <?php namespace Nano7\Auth;
 
 use Nano7\Foundation\Application;
+use Nano7\Foundation\Events\Dispatcher;
 
 abstract class Guard
 {
@@ -22,13 +23,20 @@ abstract class Guard
     protected $provider;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @param $app
      * @param Provider $provider
+     * @param Dispatcher $events
      */
-    public function __construct($app, Provider $provider)
+    public function __construct($app, Provider $provider, Dispatcher $events)
     {
         $this->app = $app;
         $this->provider = $provider;
+        $this->events = $events;
     }
 
     /**
@@ -90,4 +98,21 @@ abstract class Guard
      * @return UserInterface
      */
     abstract protected function retrieve();
+
+    /**
+     * Fire event auth.
+     *
+     * @param $event
+     * @return void
+     */
+    protected function fireEvent($event)
+    {
+        $args = func_get_args();
+        array_shift($args);
+
+        $id = sprintf('auth.%s', $event);
+        if ($this->events) {
+            $this->events->fire($id, $args);
+        }
+    }
 }

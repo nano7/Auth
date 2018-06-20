@@ -44,7 +44,11 @@ class AuthServiceProviders extends ServiceProvider
     protected function registerProvider()
     {
         $this->app->bind('auth.provider', function($app) {
-            return new Provider($app, $app['config']->get('auth.model', '\App\Models\User'));
+            return new Provider(
+                $app,
+                $app['config']->get('auth.model', '\App\Models\User'),
+                $app['bcrypt']
+            );
         });
     }
 
@@ -61,6 +65,7 @@ class AuthServiceProviders extends ServiceProvider
             return new TokenGuard(
                 $app,
                 $app['auth.provider'],
+                $app['events'],
                 $app['request'],
                 $config->get('auth.token.inputKey', 'access_token'),
                 $config->get('auth.token.storageKey', 'api_token')
@@ -81,6 +86,7 @@ class AuthServiceProviders extends ServiceProvider
             return new SessionGuard(
                 $app,
                 $app['auth.provider'],
+                $app['events'],
                 $app['request'],
                 $app['session'],
                 $config->get('auth.session.name', 'netforce_session')

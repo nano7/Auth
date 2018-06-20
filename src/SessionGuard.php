@@ -25,13 +25,14 @@ class SessionGuard extends Guard
     /**
      * @param $app
      * @param $provider
+     * @param $events
      * @param Request $request
      * @param Session $session
      * @param callable $callback
      */
-    public function __construct($app, $provider, Request $request, Session $session, $name)
+    public function __construct($app, $provider, $events, Request $request, Session $session, $name)
     {
-        parent::__construct($app, $provider);
+        parent::__construct($app, $provider, $events);
         
         $this->request = $request;
         $this->session = $session;
@@ -97,10 +98,65 @@ class SessionGuard extends Guard
         //...
 
         // Disparar evento de login
-        //..
+        $this->fireEvent('login', $user, $remember);
 
         // Guardar usuario
         $this->setUser($user);
+    }
+
+    /**
+     * Attempt to authenticate a user using the given credentials.
+     *
+     * @param  array  $credentials
+     * @param  bool   $remember
+     * @return bool
+     */
+    public function attempt(array $credentials = [], $remember = false)
+    {
+        $this->fireEvent('attempt', $credentials, $remember);
+
+        $this->lastAttempted = $user = $this->provider->getByCredentials($credentials);
+
+        // If an implementation of UserInterface was returned, we'll ask the provider
+        // to validate the user against the given credentials, and if they are in
+        // fact valid we'll log the users into the application and return true.
+        if ($this->hasValidCredentials($user, $credentials)) {
+            $this->login($user, $remember);
+
+            return true;
+        }
+
+        // If the authentication attempt fails we will fire an event so that the user
+        // may be notified of any suspicious attempts to access their account from
+        // an unrecognized user. A developer may listen to this event as needed.
+        $this->fireEvent('failed', $user, $credentials);
+
+        return false;
+    }
+
+    /**
+     * Validate a user's credentials.
+     *
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function validate(array $credentials = [])
+    {
+        $this->lastAttempted = $user = $this->provider->getByCredentials($credentials);
+
+        return $this->hasValidCredentials($user, $credentials);
+    }
+
+    /**
+     * Determine if the user matches the credentials.
+     *
+     * @param  mixed  $user
+     * @param  array  $credentials
+     * @return bool
+     */
+    protected function hasValidCredentials($user, $credentials)
+    {
+        return ! is_null($user) && $this->provider->validateCredentials($user, $credentials);
     }
 
     /**
@@ -110,7 +166,7 @@ class SessionGuard extends Guard
      */
     public function logout()
     {
-        //$user = $this->user();
+        $user = $this->user();
 
         // Remover id da sessao
         $this->session->forget($this->name);
@@ -119,7 +175,7 @@ class SessionGuard extends Guard
         //..
 
         // Disparar evento de logout
-        //..
+        $this->fireEvent('logout', $user);
 
         // Once we have fired the logout event we will clear the users out of memory
         // so they are no longer available as the user is no longer considered as
