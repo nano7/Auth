@@ -58,6 +58,19 @@ abstract class Guard
     }
 
     /**
+     * Return id of user.
+     * @return null|string
+     */
+    public function id()
+    {
+        if (! $this->check()) {
+            return null;
+        }
+
+        return $this->user()->getAuthId();
+    }
+
+    /**
      * Retorna se usuario esta logado.
      *
      * @return bool
