@@ -1,4 +1,4 @@
-<?php namespace Nano7\Tenants;
+<?php namespace Nano7\Auth;
 
 use Nano7\Database\Model\Model;
 use Nano7\Database\Model\Scope;
