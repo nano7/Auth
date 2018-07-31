@@ -66,7 +66,7 @@ class AuthServiceProviders extends ServiceProvider
                 $app,
                 $app['auth.provider'],
                 $app['events'],
-                $app['request'],
+                $app->resolved('request') ? $app['request'] : null,
                 $config->get('auth.token.inputKey', 'access_token'),
                 $config->get('auth.token.storageKey', 'api_token')
             );
@@ -87,7 +87,7 @@ class AuthServiceProviders extends ServiceProvider
                 $app,
                 $app['auth.provider'],
                 $app['events'],
-                $app['request'],
+                $app->resolved('request') ? $app['request'] : null,
                 $app['session'],
                 $config->get('auth.session.name', 'netforce_session')
             );
