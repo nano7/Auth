@@ -75,6 +75,47 @@ class AuthManager
     }
 
     /**
+     * @param string|UserInterface $user
+     */
+    public function setCron($user)
+    {
+        // Verificar se deve carregar o usuario pelo id
+        if (! is_object($user)) {
+            $model = config('auth.model');
+            $model = $this->app->make($model);
+            $user = $model->query()->find($user);
+        }
+
+        if (! ($user instanceof UserInterface)) {
+            throw new \Exception("User cron invalid");
+        }
+
+        $this->setDefaultGuard('console');
+        $this->guard()->setUser($user);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultGuard()
+    {
+        return $this->defaultGuard;
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function setDefaultGuard($value)
+    {
+        $this->defaultGuard = $value;
+
+        return $this;
+    }
+
+    /**
      * @param $name
      * @param $arguments
      * @return mixed

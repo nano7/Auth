@@ -32,6 +32,8 @@ class AuthServiceProviders extends ServiceProvider
 
             $this->registerGuardApi($auth, $config);
 
+            $this->registerGuardConsole($auth, $config);
+
             return $auth;
         });
 
@@ -90,6 +92,24 @@ class AuthServiceProviders extends ServiceProvider
                 $app->resolved('request') ? $app['request'] : null,
                 $app['session'],
                 $config->get('auth.session.name', 'netforce_session')
+            );
+        });
+    }
+
+    /**
+     * @param AuthManager $auth
+     * @param Repository $config
+     * @param $model
+     */
+    protected function registerGuardConsole(AuthManager $auth, Repository $config)
+    {
+        $auth->extend('console', function($app) use ($config) {
+
+            // Guard do token
+            return new ConsoleGuard(
+                $app,
+                $app['auth.provider'],
+                $app['events']
             );
         });
     }

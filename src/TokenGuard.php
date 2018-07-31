@@ -23,10 +23,11 @@ class TokenGuard extends Guard
 
     /**
      * @param $app
-     * @param $provider
-     * @param $events
+     * @param Provider $provider
+     * @param \Nano7\Foundation\Events\Dispatcher $events
      * @param Request $request
-     * @param callable $callback
+     * @param $inputKey
+     * @param $storageKey
      */
     public function __construct($app, $provider, $events, Request $request, $inputKey, $storageKey)
     {
