@@ -68,9 +68,9 @@ class TokenGuard extends Guard
             $token = $this->request->bearerToken();
         }
 
-        if (empty($token)) {
-            $token = $this->request->getPassword();
-        }
+        //if (empty($token)) {
+        //    $token = $this->request->getPassword();
+        //}
 
         return $token;
     }
