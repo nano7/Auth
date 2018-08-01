@@ -26,6 +26,10 @@ class Authenticated
     public function handle(Request $request, $next, $guard = null)
     {
         if (! $this->auth->guard($guard)->check()) {
+            if (app()->runningWebApi()) {
+                throw new \Exception('Unauthenticated');
+            }
+
             return redirect()->guest(route('login'));
         }
 
