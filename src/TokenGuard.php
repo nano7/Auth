@@ -1,6 +1,6 @@
 <?php namespace Nano7\Auth;
 
-use Illuminate\Http\Request;
+use Nano7\Http\Request;
 
 class TokenGuard extends Guard
 {
