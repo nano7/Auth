@@ -23,6 +23,11 @@ class SessionGuard extends Guard
     protected $name = '';
 
     /**
+     * @var UserInterface
+     */
+    protected $lastAttempted;
+
+    /**
      * @param $app
      * @param $provider
      * @param $events
@@ -183,5 +188,13 @@ class SessionGuard extends Guard
         $this->user = null;
 
         //$this->loggedOut = true;
+    }
+
+    /**
+     * @return UserInterface
+     */
+    public function getLastAttempted()
+    {
+        return $this->lastAttempted;
     }
 }
