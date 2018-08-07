@@ -25,12 +25,24 @@ class Authenticated
      */
     public function handle(Request $request, $next, $guard = null)
     {
+        // Veriifcar NAO esta logado
         if (! $this->auth->guard($guard)->check()) {
             if (app()->runningWebApi()) {
                 throw new \Exception('Unauthenticated');
             }
 
             return redirect()->guest(route('login'));
+        }
+
+        // Se esta logado, testar status atual do usuario
+        try {
+            $this->auth->guard($guard)->user()->testUser();
+        } catch (\Exception $e) {
+            if (app()->runningWebApi()) {
+                throw $e;
+            }
+
+            return redirect()->guest(route('login'))->withStatus($e->getMessage());
         }
 
         return $next($request);

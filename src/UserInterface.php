@@ -29,4 +29,11 @@ interface UserInterface
      * @return string
      */
     public function getRememberToken();
+
+    /**
+     * Validar se usuario pode ser logado.
+     *
+     * @return void
+     */
+    public function testUser();
 }
