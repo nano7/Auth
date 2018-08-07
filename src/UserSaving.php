@@ -14,7 +14,7 @@ class UserSaving
     {
         // Set user_id
         if (! $model->hasAttribute('user_id')) {
-            $model->tenant_id = auth()->id();
+            $model->user_id = auth()->id();
         }
     }
 }
