@@ -120,7 +120,7 @@ class Provider
     /**
      * Get user by Access Token.
      *
-     * @param  array  $credentials
+     * @param  string $accessToken
      * @return UserInterface|null
      */
     public function getByAccessToken($accessToken)

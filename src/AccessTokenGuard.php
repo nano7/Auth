@@ -12,6 +12,12 @@ class AccessTokenGuard extends Guard
     protected $request;
 
     /**
+     * Current access token.
+     * @var string
+     */
+    protected $accessToken = '';
+
+    /**
      * @var string
      */
     protected $inputKey = '';
@@ -48,7 +54,7 @@ class AccessTokenGuard extends Guard
             return null;
         }
 
-        return $this->provider->getByAccessToken($token);
+        return $this->loginByAccessToken($token);
     }
 
     /**
@@ -73,5 +79,53 @@ class AccessTokenGuard extends Guard
         //}
 
         return $token;
+    }
+
+    /**
+     * @param $accessToken
+     * @return UserInterface|null
+     */
+    public function loginByAccessToken($accessToken)
+    {
+        $this->accessToken = '';
+
+        if (empty($accessToken)) {
+            return null;
+        }
+
+        $user = $this->provider->getByAccessToken($accessToken);
+
+        if (! is_null($user)) {
+            $this->accessToken = $accessToken;
+            $this->setUser($user);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Log the user out of the application by access token.
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        if (empty($this->accessToken)) {
+            return;
+        }
+
+        $user = $this->user();
+
+        $user->forgetAccessToken($this->accessToken);
+
+        // Disparar evento de logout
+        $this->fireEvent('logout', $user);
+
+        // Once we have fired the logout event we will clear the users out of memory
+        // so they are no longer available as the user is no longer considered as
+        // being signed into this application and should not be available here.
+        $this->user = null;
+
+        //$this->loggedOut = true;
     }
 }

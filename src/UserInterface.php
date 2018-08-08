@@ -44,4 +44,12 @@ interface UserInterface
      * @return UserInterface
      */
     public static function getByAccessToken($token);
+
+    /**
+     * Forget access token.
+     *
+     * @param string $token
+     * @return bool
+     */
+    public function forgetAccessToken($token);
 }
