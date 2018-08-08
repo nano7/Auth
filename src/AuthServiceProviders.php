@@ -32,6 +32,8 @@ class AuthServiceProviders extends ServiceProvider
 
             $this->registerGuardToken($auth, $config);
 
+            $this->registerGuardAccessToken($auth, $config);
+
             $this->registerGuardConsole($auth, $config);
 
             return $auth;
