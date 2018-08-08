@@ -36,4 +36,12 @@ interface UserInterface
      * @return void
      */
     public function testUser();
+
+    /**
+     * Get user by access token.
+     *
+     * @param string $token
+     * @return UserInterface
+     */
+    public static function getByAccessToken($token);
 }

@@ -28,9 +28,9 @@ class AuthServiceProviders extends ServiceProvider
 
             $auth = new AuthManager($app, $config->get('auth.default'));
 
-            $this->registerGuardWeb($auth, $config);
+            $this->registerGuardSession($auth, $config);
 
-            $this->registerGuardApi($auth, $config);
+            $this->registerGuardToken($auth, $config);
 
             $this->registerGuardConsole($auth, $config);
 
@@ -59,9 +59,9 @@ class AuthServiceProviders extends ServiceProvider
      * @param Repository $config
      * @param $model
      */
-    protected function registerGuardApi(AuthManager $auth, Repository $config)
+    protected function registerGuardToken(AuthManager $auth, Repository $config)
     {
-        $auth->extend('api', function($app) use ($config) {
+        $auth->extend('token', function($app) use ($config) {
 
             // Guard do token
             return new TokenGuard(
@@ -80,11 +80,32 @@ class AuthServiceProviders extends ServiceProvider
      * @param Repository $config
      * @param $model
      */
-    protected function registerGuardWeb(AuthManager $auth, Repository $config)
+    protected function registerGuardAccessToken(AuthManager $auth, Repository $config)
     {
-        $auth->extend('web', function($app) use ($config) {
+        $auth->extend('accesstoken', function($app) use ($config) {
 
-            // Guard do token
+            // Guard do accesstoken
+            return new AccessTokenGuard(
+                $app,
+                $app['auth.provider'],
+                $app['events'],
+                $app->resolved('request') ? $app['request'] : null,
+                $config->get('auth.token.inputKey', 'access_token'),
+                $config->get('auth.token.storageKey', 'api_token')
+            );
+        });
+    }
+
+    /**
+     * @param AuthManager $auth
+     * @param Repository $config
+     * @param $model
+     */
+    protected function registerGuardSession(AuthManager $auth, Repository $config)
+    {
+        $auth->extend('session', function($app) use ($config) {
+
+            // Guard session
             return new SessionGuard(
                 $app,
                 $app['auth.provider'],
@@ -105,7 +126,7 @@ class AuthServiceProviders extends ServiceProvider
     {
         $auth->extend('console', function($app) use ($config) {
 
-            // Guard do token
+            // Guard do console
             return new ConsoleGuard(
                 $app,
                 $app['auth.provider'],

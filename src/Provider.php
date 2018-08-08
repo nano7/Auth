@@ -116,4 +116,15 @@ class Provider
 
         return $this->hasher->check($plain, $user->getAuthPassword());
     }
+
+    /**
+     * Get user by Access Token.
+     *
+     * @param  array  $credentials
+     * @return UserInterface|null
+     */
+    public function getByAccessToken($accessToken)
+    {
+        return call_user_func_array([$this->getModel(), 'getByAccessToken'], [$accessToken]);
+    }
 }
