@@ -29,6 +29,8 @@ class Authorize
         // Veriifcar se esta logado
         $this->checkAuthenticate($guard);
 
+        $ability = explode(';', $ability);
+
         // Verificar permissoes
         $user = $this->auth->guard($guard)->user();
         if (! $user->can($ability)) {
