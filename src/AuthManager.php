@@ -28,6 +28,11 @@ class AuthManager
     protected $providers = [];
 
     /**
+     * @var \Closure
+     */
+    protected $userResolver;
+
+    /**
      * @param $app
      * @param $defaultGuard
      */
@@ -35,6 +40,10 @@ class AuthManager
     {
         $this->app = $app;
         $this->defaultGuard = $defaultGuard;
+
+        $this->userResolver = function($guard = null) {
+            return $this->guard($guard)->user();
+        };
     }
 
     /**
@@ -118,6 +127,14 @@ class AuthManager
         $this->defaultGuard = $value;
 
         return $this;
+    }
+
+    /**
+     * @return callable
+     */
+    public function userResolver()
+    {
+        return $this->userResolver;
     }
 
     /**

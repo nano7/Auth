@@ -52,4 +52,12 @@ interface UserInterface
      * @return bool
      */
     public function forgetAccessToken($token);
+
+    /**
+     * Determine if the entity has a given ability.
+     *
+     * @param  string  $ability
+     * @return bool
+     */
+    public function can($ability);
 }
