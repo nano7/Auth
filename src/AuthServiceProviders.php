@@ -148,6 +148,7 @@ class AuthServiceProviders extends ServiceProvider
 
             $web->middleware('auth',  '\Nano7\Auth\Middlewares\Authenticated');
             $web->middleware('guest', '\Nano7\Auth\Middlewares\Guest');
+            $web->middleware('can',   '\Nano7\Auth\Middlewares\Authorize');
         });
     }
 }
