@@ -100,7 +100,11 @@ trait Gate
      */
     protected function loadPermissions()
     {
-        $permissions = $this->getAttribute('permissions');
+        if (! method_exists($this, 'getPermissions')) {
+            throw new \Exception("Method [getPermissions] not found");
+        }
+
+        $permissions = call_user_func_array([$this, 'getPermissions'], []);
         $this->permissions = is_null($permissions) ? [] : $permissions;
     }
 }
