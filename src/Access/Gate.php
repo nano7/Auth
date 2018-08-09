@@ -5,7 +5,7 @@ use Nano7\Foundation\Support\Str;
 /**
  * Class Gate
  * @package Nano7\Auth\Access
- * @property array $permissions
+ * @method mixed getAttribute($attribute)
  */
 trait Gate
 {
@@ -100,7 +100,7 @@ trait Gate
      */
     protected function loadPermissions()
     {
-        $permissions = $this->permissions;
+        $permissions = $this->getAttribute('permissions');
         $this->permissions = is_null($permissions) ? [] : $permissions;
     }
 }
