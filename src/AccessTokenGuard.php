@@ -119,7 +119,9 @@ class AccessTokenGuard extends Guard
         $user->forgetAccessToken($this->accessToken);
 
         // Disparar evento de logout
-        $this->fireEvent('logout', $user);
+        if (! is_null($user)) {
+            $this->fireEvent('logout', $user);
+        }
 
         // Once we have fired the logout event we will clear the users out of memory
         // so they are no longer available as the user is no longer considered as

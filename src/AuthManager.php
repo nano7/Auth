@@ -1,5 +1,6 @@
 <?php namespace Nano7\Auth;
 
+use Nano7\Foundation\Support\Arr;
 use Nano7\Foundation\Application;
 
 class AuthManager
@@ -47,6 +48,10 @@ class AuthManager
     {
         $guard = is_null($guard) ? $this->defaultGuard : $guard;
 
+        // Procurar guard in connections
+        $connection_config = config('auth.connections.' . $guard, []);
+        $guard = Arr::get($connection_config, 'driver', $guard);
+
         // Verificar se guard ja foi criado
         if (array_key_exists($guard, $this->guards)) {
             return $this->guards[$guard];
@@ -54,7 +59,7 @@ class AuthManager
 
         // Verificar se provider do guard foi implementado
         if (array_key_exists($guard, $this->providers)) {
-            return $this->guards[$guard] = call_user_func_array($this->providers[$guard], [$this->app]);
+            return $this->guards[$guard] = call_user_func_array($this->providers[$guard], [$this->app, $connection_config]);
         }
 
         throw new \Exception("guard provider [$guard] is invalid");
