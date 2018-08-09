@@ -10,10 +10,21 @@ use Nano7\Foundation\Support\Str;
 trait Gate
 {
     /**
-     * List all permissions of user.
-     * @var array|null
+     * @var bool
      */
-    protected $permissions;
+    protected $loadedPermissions = false;
+
+    /**
+     * List all permissions of user.
+     * @var array
+     */
+    protected $allows = [];
+
+    /**
+     * List all denies of user.
+     * @var array
+     */
+    protected $denies = [];
 
     /**
      * Determine if the given ability should be granted for the current user.
@@ -82,12 +93,20 @@ trait Gate
     protected function raw($ability)
     {
         // Carregar lista de permissões do usuario
-        if (is_null($this->permissions)) {
+        if (! $this->loadedPermissions) {
             $this->loadPermissions();
         }
 
-        foreach ($this->permissions as $permission) {
-            if (Str::is($permission, $ability)) {
+        // Verificar se existe alguma negacao explicita
+        foreach ($this->denies as $deny) {
+            if (Str::is($deny, $ability)) {
+                return false;
+            }
+        }
+
+        // Verificar se existe alguma permissao
+        foreach ($this->allows as $allow) {
+            if (Str::is($allow, $ability)) {
                 return true;
             }
         }
@@ -104,7 +123,13 @@ trait Gate
             throw new \Exception("Method [getPermissions] not found");
         }
 
-        $permissions = call_user_func_array([$this, 'getPermissions'], []);
-        $this->permissions = is_null($permissions) ? [] : $permissions;
+        // Caregar lista de permissoes e negacoes
+        $roles = call_user_func_array([$this, 'getPermissions'], []);
+        $roles = is_null($roles) ? (object)['allows' => [], 'denies' => []] : $roles;
+
+        $this->allows = isset($roles->allows) ? $roles->allows : [];
+        $this->denies = isset($roles->denies) ? $roles->denies : [];
+
+        $this->loadedPermissions = true;
     }
 }
