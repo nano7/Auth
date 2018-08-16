@@ -18,7 +18,7 @@ abstract class Guard
     protected $user;
 
     /**
-     * @var Provider
+     * @var ProviderInterface
      */
     protected $provider;
 
@@ -29,10 +29,10 @@ abstract class Guard
 
     /**
      * @param $app
-     * @param Provider $provider
+     * @param ProviderInterface $provider
      * @param Dispatcher $events
      */
-    public function __construct($app, Provider $provider, Dispatcher $events)
+    public function __construct($app, ProviderInterface $provider, Dispatcher $events)
     {
         $this->app = $app;
         $this->provider = $provider;

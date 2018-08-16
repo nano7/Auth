@@ -23,7 +23,7 @@ class TokenGuard extends Guard
 
     /**
      * @param $app
-     * @param Provider $provider
+     * @param ProviderInterface $provider
      * @param \Nano7\Foundation\Events\Dispatcher $events
      * @param Request $request
      * @param $inputKey

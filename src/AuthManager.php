@@ -25,7 +25,17 @@ class AuthManager
     /**
      * @var array
      */
+    protected $guardProviders = [];
+
+    /**
+     * @var array
+     */
     protected $providers = [];
+
+    /**
+     * @var array
+     */
+    protected $userProviders = [];
 
     /**
      * @var \Closure
@@ -58,8 +68,8 @@ class AuthManager
         $guard = is_null($guard) ? $this->defaultGuard : $guard;
 
         // Procurar guard in connections
-        $connection_config = config('auth.connections.' . $guard, []);
-        $guard = Arr::get($connection_config, 'driver', $guard);
+        $config = config('auth.connections.' . $guard, []);
+        $guard = Arr::get($config, 'driver', $guard);
 
         // Verificar se guard ja foi criado
         if (array_key_exists($guard, $this->guards)) {
@@ -67,11 +77,37 @@ class AuthManager
         }
 
         // Verificar se provider do guard foi implementado
-        if (array_key_exists($guard, $this->providers)) {
-            return $this->guards[$guard] = call_user_func_array($this->providers[$guard], [$this->app, $connection_config]);
+        if (array_key_exists($guard, $this->guardProviders)) {
+            return $this->guards[$guard] = call_user_func_array($this->guardProviders[$guard], [$this->app, $config]);
         }
 
         throw new \Exception("guard provider [$guard] is invalid");
+    }
+
+    /**
+     * Retorna UserProvider.
+     *
+     * @param $userProvider
+     * @return mixed
+     * @throws \Exception
+     */
+    public function provider($userProvider)
+    {
+        // Procurar provider in config
+        $config = config('auth.providers.' . $userProvider, []);
+        $driver = Arr::get($config, 'driver', $userProvider);
+
+        // Verificar se guard ja foi criado
+        if (array_key_exists($driver, $this->providers)) {
+            return $this->providers[$driver];
+        }
+
+        // Verificar se provider foi implementado
+        if (array_key_exists($driver, $this->userProviders)) {
+            return $this->providers[$driver] = call_user_func_array($this->userProviders[$driver], [$this->app, $config]);
+        }
+
+        throw new \Exception("user provider [$userProvider] is invalid");
     }
 
     /**
@@ -83,7 +119,21 @@ class AuthManager
      */
     public function extend($guardName, \Closure $callback)
     {
-        $this->providers[$guardName] = $callback;
+        $this->guardProviders[$guardName] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Register a custom user provider name Closure.
+     *
+     * @param  string    $driver
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function extendProvider($userProvider, \Closure $callback)
+    {
+        $this->userProviders[$userProvider] = $callback;
 
         return $this;
     }

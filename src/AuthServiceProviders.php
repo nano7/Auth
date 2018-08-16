@@ -1,18 +1,18 @@
 <?php namespace Nano7\Auth;
 
-use Nano7\Foundation\Config\Repository;
-use Nano7\Foundation\Support\ServiceProvider;
 use Nano7\Http\Kernel;
+use Nano7\Foundation\Support\Arr;
+use Nano7\Foundation\Support\ServiceProvider;
 
 class AuthServiceProviders extends ServiceProvider
 {
+    protected $defaultUserprovider = 'model';
+
     /**
      * Register objetos do auth.
      */
     public function register()
     {
-        $this->registerProvider();
-
         $this->registerManager();
 
         $this->registerMiddlewares();
@@ -28,13 +28,14 @@ class AuthServiceProviders extends ServiceProvider
 
             $auth = new AuthManager($app, $config->get('auth.default'));
 
-            $this->registerGuardSession($auth, $config);
+            // User Providers
+            $this->registerProviderModel($auth);
 
-            $this->registerGuardToken($auth, $config);
-
-            $this->registerGuardAccessToken($auth, $config);
-
-            $this->registerGuardConsole($auth, $config);
+            // Guards
+            $this->registerGuardSession($auth);
+            $this->registerGuardToken($auth);
+            $this->registerGuardAccessToken($auth);
+            $this->registerGuardConsole($auth);
 
             return $auth;
         });
@@ -43,14 +44,16 @@ class AuthServiceProviders extends ServiceProvider
     }
 
     /**
-     * Registrar provider.
+     * Registrar provider: model.
+     *
+     * @param AuthManager $auth
      */
-    protected function registerProvider()
+    protected function registerProviderModel(AuthManager $auth)
     {
-        $this->app->bind('auth.provider', function($app) {
-            return new Provider(
+        $auth->extendProvider('model', function($app, $config) {
+            return new ModelProvider(
                 $app,
-                $app['config']->get('auth.model', '\App\Models\User'),
+                Arr::get($config, 'model', '\App\Models\User'),
                 $app['bcrypt']
             );
         });
@@ -58,80 +61,68 @@ class AuthServiceProviders extends ServiceProvider
 
     /**
      * @param AuthManager $auth
-     * @param Repository $config
      * @param $model
      */
-    protected function registerGuardToken(AuthManager $auth, Repository $config)
+    protected function registerGuardSession(AuthManager $auth)
     {
-        $auth->extend('token', function($app) use ($config) {
-
-            // Guard do token
-            return new TokenGuard(
-                $app,
-                $app['auth.provider'],
-                $app['events'],
-                $app->resolved('request') ? $app['request'] : null,
-                $config->get('auth.token.inputKey', 'access_token'),
-                $config->get('auth.token.storageKey', 'api_token')
-            );
-        });
-    }
-
-    /**
-     * @param AuthManager $auth
-     * @param Repository $config
-     * @param $model
-     */
-    protected function registerGuardAccessToken(AuthManager $auth, Repository $config)
-    {
-        $auth->extend('accesstoken', function($app) use ($config) {
-
-            // Guard do accesstoken
-            return new AccessTokenGuard(
-                $app,
-                $app['auth.provider'],
-                $app['events'],
-                $app->resolved('request') ? $app['request'] : null,
-                $config->get('auth.token.inputKey', 'access_token'),
-                $config->get('auth.token.storageKey', 'api_token')
-            );
-        });
-    }
-
-    /**
-     * @param AuthManager $auth
-     * @param Repository $config
-     * @param $model
-     */
-    protected function registerGuardSession(AuthManager $auth, Repository $config)
-    {
-        $auth->extend('session', function($app) use ($config) {
-
-            // Guard session
+        $auth->extend('session', function($app, $config) use ($auth) {
             return new SessionGuard(
                 $app,
-                $app['auth.provider'],
+                $auth->provider(Arr::get($config, 'provider', $this->defaultUserprovider)),
                 $app['events'],
                 $app->resolved('request') ? $app['request'] : null,
                 $app['session'],
-                $config->get('auth.session.name', 'netforce_session')
+                Arr::get($config, 'sessionName', 'nano7_session')
             );
         });
     }
 
     /**
      * @param AuthManager $auth
-     * @param Repository $config
      * @param $model
      */
-    protected function registerGuardConsole(AuthManager $auth, Repository $config)
+    protected function registerGuardToken(AuthManager $auth)
     {
-        $auth->extend('console', function($app) use ($config) {
+        $auth->extend('token', function($app, $config) use ($auth) {
+            return new TokenGuard(
+                $app,
+                $auth->provider(Arr::get($config, 'provider', $this->defaultUserprovider)),
+                $app['events'],
+                $app->resolved('request') ? $app['request'] : null,
+                Arr::get($config, 'inputKey', 'access_token'),
+                Arr::get($config, 'storageKey', 'api_token')
+            );
+        });
+    }
 
-            // Guard do console
+    /**
+     * @param AuthManager $auth
+     * @param $model
+     */
+    protected function registerGuardAccessToken(AuthManager $auth)
+    {
+        $auth->extend('accesstoken', function($app, $config) use ($auth) {
+            return new AccessTokenGuard(
+                $app,
+                $auth->provider(Arr::get($config, 'provider', $this->defaultUserprovider)),
+                $app['events'],
+                $app->resolved('request') ? $app['request'] : null,
+                Arr::get($config, 'inputKey', 'access_token'),
+                Arr::get($config, 'storageKey', 'api_token')
+            );
+        });
+    }
+
+    /**
+     * @param AuthManager $auth
+     * @param $model
+     */
+    protected function registerGuardConsole(AuthManager $auth)
+    {
+        $auth->extend('console', function($app, $config) use ($auth) {
             return new ConsoleGuard(
                 $app,
-                $app['auth.provider'],
+                $auth->provider(Arr::get($config, 'provider', $this->defaultUserprovider)),
                 $app['events']
             );
         });

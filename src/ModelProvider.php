@@ -5,7 +5,7 @@ use Nano7\Foundation\Support\Arr;
 use Nano7\Foundation\Application;
 use Nano7\Foundation\Encryption\BcryptHasher;
 
-class Provider
+class ModelProvider implements ProviderInterface
 {
     /**
      * @var Application
