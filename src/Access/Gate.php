@@ -1,6 +1,6 @@
 <?php namespace Nano7\Auth\Access;
 
-use Nano7\Foundation\Support\Str;
+use Nano7\Support\Str;
 
 /**
  * Class Gate

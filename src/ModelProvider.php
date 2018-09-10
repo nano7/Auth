@@ -1,7 +1,7 @@
 <?php namespace Nano7\Auth;
 
+use Nano7\Support\Arr;
 use Nano7\Database\Model\Model;
-use Nano7\Foundation\Support\Arr;
 use Nano7\Foundation\Application;
 use Nano7\Foundation\Encryption\BcryptHasher;
 
